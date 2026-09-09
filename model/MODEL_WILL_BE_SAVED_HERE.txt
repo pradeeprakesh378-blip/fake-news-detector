@@ -1,0 +1,11 @@
+After you run:
+
+    python train_model.py
+
+the trained model bundle (TF-IDF vectorizer + Logistic Regression classifier)
+will be saved here as:
+
+    fake_news_model.pkl
+
+No pre-trained model is bundled with this project — it is generated from
+your own dataset (dataset/news.csv).

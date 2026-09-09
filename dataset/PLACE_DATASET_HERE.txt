@@ -1,0 +1,13 @@
+Place your labelled fake/real news dataset here as:
+
+    news.csv
+
+Preferred format:
+
+    title,text,label
+    "Example headline","Example article content...","REAL"
+    "False claim example","Example misleading article...","FAKE"
+
+See the main README.md for full details on accepted column names and label values.
+
+No dataset is bundled with this project — you must supply your own.

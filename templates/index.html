@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fake News Detection | Data Science Project</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="navbar navbar-expand-lg navbar-dark app-navbar sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#hero">
+      <i class="bi bi-shield-check"></i> FAKE NEWS DETECTION
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#detect">Fake News Detection</a></li>
+        <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+        <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+        <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">About</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header id="hero" class="hero-section text-center">
+  <div class="container">
+    <i class="bi bi-shield-exclamation hero-icon"></i>
+    <h1 class="hero-title">FAKE NEWS DETECTION</h1>
+    <p class="hero-subtitle">Detect potentially misleading news using Data Science and Machine Learning.</p>
+    <a href="#detect" class="btn btn-primary btn-lg mt-3 px-4">
+      <i class="bi bi-search"></i> Try It Now
+    </a>
+  </div>
+</header>
+
+<main class="container">
+
+  {% if not model_ready %}
+  <div class="alert alert-warning shadow-sm mt-4" role="alert">
+    <i class="bi bi-exclamation-triangle"></i>
+    <strong>Model not available yet.</strong>
+    Please place your dataset at <code>dataset/news.csv</code> and run
+    <code>python train_model.py</code> to train and save a model before checking news.
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert alert-danger shadow-sm mt-4" role="alert">
+    <i class="bi bi-x-circle"></i> {{ error }}
+  </div>
+  {% endif %}
+
+  <!-- DETECTION FORM -->
+  <section id="detect" class="detect-section">
+    <div class="card detect-card shadow">
+      <div class="card-body p-4 p-md-5">
+        <h2 class="section-title"><i class="bi bi-clipboard-data"></i> Check a News Article</h2>
+        <p class="text-muted">Enter a headline and/or the full article text below.</p>
+
+        <form action="{{ url_for('predict') }}" method="POST" id="detectForm">
+          <div class="mb-3">
+            <label for="headline" class="form-label fw-semibold">Headline</label>
+            <input type="text" class="form-control" id="headline" name="headline"
+                   placeholder="Enter news headline" maxlength="500"
+                   value="{{ headline or '' }}">
+          </div>
+
+          <div class="mb-2">
+            <label for="article" class="form-label fw-semibold">Article</label>
+            <textarea class="form-control" id="article" name="article" rows="8"
+                      maxlength="10000"
+                      placeholder="Paste or enter the complete news article here...">{{ article or '' }}</textarea>
+          </div>
+          <div class="d-flex justify-content-between text-muted small mb-4">
+            <span id="charCounter">0 / 10000 characters</span>
+            <span id="charWarning" class="text-danger"></span>
+          </div>
+
+          <div class="d-flex gap-3 flex-wrap">
+            <button type="submit" class="btn btn-primary btn-lg px-4" id="checkBtn" {% if not model_ready %}disabled{% endif %}>
+              <span class="btn-text"><i class="bi bi-search"></i> CHECK NEWS</span>
+              <span class="btn-loading d-none">
+                <span class="spinner-border spinner-border-sm" role="status"></span> Analyzing...
+              </span>
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-lg px-4" id="clearBtn">
+              <i class="bi bi-x-lg"></i> CLEAR
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS / PIPELINE -->
+  <section id="how-it-works" class="pipeline-section">
+    <h2 class="section-title text-center"><i class="bi bi-diagram-3"></i> How It Works</h2>
+    <p class="text-center text-muted mb-5">Click each stage to learn more about the data science pipeline.</p>
+
+    <div class="pipeline-flow">
+      <div class="pipeline-stage" data-stage="collection">
+        <i class="bi bi-database"></i>
+        <span>Data Collection</span>
+      </div>
+      <div class="pipeline-arrow"><i class="bi bi-arrow-down"></i></div>
+
+      <div class="pipeline-stage" data-stage="cleaning">
+        <i class="bi bi-eraser"></i>
+        <span>Data Cleaning</span>
+      </div>
+      <div class="pipeline-arrow"><i class="bi bi-arrow-down"></i></div>
+
+      <div class="pipeline-stage" data-stage="extraction">
+        <i class="bi bi-diagram-2"></i>
+        <span>Feature Extraction</span>
+      </div>
+      <div class="pipeline-arrow"><i class="bi bi-arrow-down"></i></div>
+
+      <div class="pipeline-stage" data-stage="ml">
+        <i class="bi bi-cpu"></i>
+        <span>Machine Learning</span>
+      </div>
+      <div class="pipeline-arrow"><i class="bi bi-arrow-down"></i></div>
+
+      <div class="pipeline-stage" data-stage="prediction">
+        <i class="bi bi-check2-circle"></i>
+        <span>Prediction</span>
+      </div>
+    </div>
+
+    <div id="stageExplanation" class="stage-explanation mt-4 d-none">
+      <p id="stageText" class="mb-0"></p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="features-section">
+    <h2 class="section-title text-center"><i class="bi bi-stars"></i> Features</h2>
+
+    <p class="text-center text-muted">
+      <span class="badge bg-secondary">Potential features considered in fake-news detection</span>
+    </p>
+    <div class="row g-4 mt-2">
+      <div class="col-md-3 col-6">
+        <div class="feature-card"><i class="bi bi-card-heading"></i><h6>News Title</h6></div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-card"><i class="bi bi-file-text"></i><h6>News Content</h6></div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-card"><i class="bi bi-person-badge"></i><h6>Author / Source</h6></div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-card"><i class="bi bi-calendar-event"></i><h6>Publication Date</h6></div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-card"><i class="bi bi-pen"></i><h6>Writing Style</h6></div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-card"><i class="bi bi-key"></i><h6>Keywords</h6></div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-card"><i class="bi bi-bar-chart"></i><h6>Word Frequency</h6></div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="feature-card feature-implemented"><i class="bi bi-check-circle"></i><h6>TF-IDF Text Content</h6></div>
+      </div>
+    </div>
+    <div class="alert alert-info mt-4">
+      <i class="bi bi-info-circle"></i>
+      The <strong>current implementation</strong> uses only the textual content (headline + article),
+      represented numerically through <strong>TF-IDF</strong>. The remaining items above are
+      <strong>features discussed in the academic project</strong> as potential future extensions,
+      not features currently implemented by this application.
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="dashboard-section">
+    <h2 class="section-title text-center"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+    <p class="text-center text-muted mb-4">Live statistics for your current session only.</p>
+
+    <div class="row g-4">
+      <div class="col-md-3 col-6">
+        <div class="stat-card">
+          <i class="bi bi-list-check"></i>
+          <div class="stat-value" id="statTotal">{{ stats.total }}</div>
+          <div class="stat-label">Total Checked</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-card stat-real">
+          <i class="bi bi-patch-check"></i>
+          <div class="stat-value" id="statReal">{{ stats.real }}</div>
+          <div class="stat-label">Real News</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-card stat-fake">
+          <i class="bi bi-exclamation-diamond"></i>
+          <div class="stat-value" id="statFake">{{ stats.fake }}</div>
+          <div class="stat-label">Fake News</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="stat-card">
+          <i class="bi bi-percent"></i>
+          <div class="stat-value" id="statRate">
+            {% if stats.total > 0 %}{{ (stats.fake / stats.total * 100) | round(1) }}%{% else %}0%{% endif %}
+          </div>
+          <div class="stat-label">Fake Detection Rate</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4 p-3 shadow-sm">
+      <canvas id="statsChart" height="90"
+              data-total="{{ stats.total }}" data-real="{{ stats.real }}" data-fake="{{ stats.fake }}"></canvas>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-footer text-center">
+  <div class="container">
+    <p class="mb-1">Fake News Detection Using Data Science &mdash; College Academic Project</p>
+    <p class="mb-0 small text-muted">Automated ML classification only. Not a substitute for professional fact-checking.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
