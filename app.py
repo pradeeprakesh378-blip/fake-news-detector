@@ -65,6 +65,12 @@ def inject_stats():
     return {"stats": get_stats()}
 
 
+@app.route("/healthz")
+def healthz():
+    """Lightweight health check used by the hosting platform."""
+    return {"status": "ok", "model_ready": ml.model_exists()}
+
+
 @app.route("/")
 def index():
     return render_template("index.html", model_ready=ml.model_exists())
@@ -185,4 +191,10 @@ def server_error(_error):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Local development server only. In production the app is served by
+    # gunicorn (see Dockerfile / render.yaml), which imports `app:app`.
+    app.run(
+        host="127.0.0.1",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=os.environ.get("FLASK_DEBUG", "0") == "1",
+    )

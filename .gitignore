@@ -1,2 +1,9 @@
 __pycache__/
 *.pyc
+venv/
+.venv/
+.env
+
+# The training dataset is large and not needed at runtime; only the trained
+# model (model/fake_news_model.pkl) is committed and deployed.
+dataset/*.csv

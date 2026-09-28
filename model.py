@@ -15,6 +15,7 @@ reused / unit tested independently of the web layer.
 
 import re
 import string
+from functools import lru_cache
 from pathlib import Path
 
 import joblib
@@ -98,9 +99,13 @@ def model_exists() -> bool:
     return MODEL_PATH.exists()
 
 
+@lru_cache(maxsize=1)
 def load_model():
     """
     Load the trained vectorizer + classifier bundle from disk.
+
+    The result is cached so the .pkl file is read once per process rather
+    than on every request. Failures raise and are therefore not cached.
 
     Returns:
         dict with keys "vectorizer" and "model"

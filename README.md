@@ -140,6 +140,24 @@ http://127.0.0.1:5000
 
 ---
 
+## Deployment (Render, free tier)
+
+The trained model (`model/fake_news_model.pkl`) is committed, so the server
+does not need the dataset. `render.yaml` defines the web service:
+
+- Build: `pip install -r requirements.txt` (exact versions pinned so the
+  pickled model loads with the same scikit-learn it was trained with)
+- Start: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4`
+- Health check: `/healthz`
+- `FLASK_SECRET_KEY` is generated automatically by Render
+
+On Render: **New → Blueprint**, select this repository, and apply.
+
+If you retrain with a different scikit-learn version, update
+`requirements.txt` to match before redeploying.
+
+---
+
 ## How It Works
 
 ```
